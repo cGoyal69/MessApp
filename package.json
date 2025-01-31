@@ -1,0 +1,26 @@
+{
+  "name": "messapp",
+  "version": "1.0.0",
+  "main": "backend.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cGoyal69/MessApp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cGoyal69/MessApp/issues"
+  },
+  "homepage": "https://github.com/cGoyal69/MessApp#readme",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0",
+    "nodemailer": "^6.10.0"
+  }
+}
