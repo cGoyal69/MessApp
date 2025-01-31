@@ -1,3 +1,4 @@
+require('dotenv').config(); 
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -19,11 +20,11 @@ app.use(cors());
 
 // MySQL Connection
 const db = mysql.createConnection({
-  host: 'messapp-cgoy96.b.aivencloud.com', // Replace with your MySQL host
-  user: 'avnadmin',      // Replace with your MySQL username
-  password: 'AVNS_AvANMiNmvDBnWSYkCF8', // Replace with your MySQL password
-  database: 'mess',  // Replace with your MySQL database name
-  port: 13099
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT
 });
 
 db.connect((err) => {
