@@ -1,4 +1,3 @@
-require('dotenv').config(); 
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -20,11 +19,10 @@ app.use(cors());
 
 // MySQL Connection
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT
+  host: 'localhost', // Replace with your MySQL host
+  user: 'root',      // Replace with your MySQL username
+  password: 'helloKitty96', // Replace with your MySQL password
+  database: 'mess',  // Replace with your MySQL database name
 });
 
 db.connect((err) => {
@@ -115,12 +113,12 @@ app.post('/students/get', async (req, res) => {
 });
 
 app.post('/students/gets', async (req, res) => {
-  const { rollNumber } = req.body;
-  console.log(rollNumber);
+  const { rollNo } = req.body;
+  console.log(rollNo);
   try {
     db.query(
       'SELECT * FROM users WHERE rollNo = ?',
-      [rollNumber],
+      [rollNo],
       async (err, results) => {
         if (err) {
           console.log(err);
@@ -158,22 +156,32 @@ app.post('/add-user', (req, res) => {
   });
 });
 // Update an existing user (only email and preference can be updated)
-app.put('/update-user', (req, res) => {
-  const { rollNumber, email, preference } = req.body;
+// Update student details by roll number
+app.put('/students/update', (req, res) => {
+  const { rollNo, name, email, preference } = req.body;
 
-  if (!rollNumber || !email || !preference) {
-    return res.status(400).json({ error: 'Roll number, email, and preference are required' });
+  if (!rollNo) {
+    return res.status(400).json({ error: 'Roll No is required' });
   }
 
-  const query = 'UPDATE users SET email = ?, preference = ? WHERE rollNo = ?';
-  db.query(query, [email, preference, rollNumber], (err, result) => {
+  const query = 'UPDATE users SET name = ?, email = ?, preference = ? WHERE rollNo = ?';
+
+  db.query(query, [name, email, preference, rollNo], (err, result) => {
     if (err) {
-      return res.status(500).json({ error: 'Error updating user' });
+      return res.status(500).json({ error: 'Error updating student' });
     }
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ message: 'Student not found' });
     }
-    res.status(200).json({ success: 'User updated successfully' });
+    
+    // Fetch the updated student details
+    const fetchQuery = 'SELECT * FROM users WHERE rollNo = ?';
+    db.query(fetchQuery, [rollNo], (err, updatedResults) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error fetching updated student details' });
+      }
+      res.status(200).json({ message: 'Student updated successfully', student: updatedResults[0] });
+    });
   });
 });
 // Delete a user by roll number (from body)
@@ -330,10 +338,57 @@ app.post('/students/attendance', (req, res) => {
     res.json({ attendanceTimes: results.map(row => row.time) });
   });
 });
+
+// Get total students and count veg/non-veg
+app.get('/mess/stats', (req, res) => {
+  const queryTotal = 'SELECT COUNT(*) AS totalStudents FROM users';
+  const queryVeg = 'SELECT COUNT(*) AS veg FROM users WHERE preference = "veg"';
+  const queryNonVeg = 'SELECT COUNT(*) AS nonveg FROM users WHERE preference = "nonveg"';
+  console.log('Hello')
+  db.query(queryTotal, (err, totalResults) => {
+    if (err) return res.status(500).json({ error: 'Error fetching student count' });
+
+    db.query(queryVeg, (err, vegResults) => {
+      if (err) return res.status(500).json({ error: 'Error fetching veg count' });
+
+      db.query(queryNonVeg, (err, nonVegResults) => {
+        if (err) return res.status(500).json({ error: 'Error fetching non-veg count' });
+
+        res.json({
+          totalStudents: totalResults[0].totalStudents,
+          veg: vegResults[0].veg,
+          nonveg: nonVegResults[0].nonveg
+        });
+      });
+    });
+  });
+});
+
+// Search student by roll number
+
+
+// Remove student by roll number
+app.delete('/students/remove', (req, res) => {
+  const { rollNo } = req.body;
+  if (!rollNo) {
+    return res.status(400).json({ error: 'Roll No is required' });
+  }
+
+  const query = 'DELETE FROM users WHERE rollNo = ?';
+  db.query(query, [rollNo], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error removing student' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+    res.status(200).json({ success: 'Student removed successfully' });
+  });
+});
 // Start the server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on http://0.0.0.0:${PORT}`);
   console.log('Access this app on your local network using your system\'s local IP address:');
-  console.log(`Example: http://192.168.92.27:${PORT}`);
+  console.log(`Example: http://192.168.29.110:${PORT}`);
 });
 
