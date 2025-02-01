@@ -23,7 +23,10 @@ const db = mysql.createConnection({
   user: 'avnadmin',      // Replace with your MySQL username
   password: 'AVNS_AvANMiNmvDBnWSYkCF8', // Replace with your MySQL password
   database: 'mess',  // Replace with your MySQL database name
-  port: 13099
+  port: 13099,
+  waitForConnections: true,
+  connectionLimit: 10,  // Adjust as needed
+  queueLimit: 0
 });
 
 db.connect((err) => {
@@ -341,31 +344,22 @@ app.post('/students/attendance', (req, res) => {
 });
 
 // Get total students and count veg/non-veg
-app.get('/mess/stats', (req, res) => {
-  const queryTotal = 'SELECT COUNT(*) AS totalStudents FROM users';
-  const queryVeg = 'SELECT COUNT(*) AS veg FROM users WHERE preference = "veg"';
-  const queryNonVeg = 'SELECT COUNT(*) AS nonveg FROM users WHERE preference = "nonveg"';
-  console.log('Hello')
-  db.query(queryTotal, (err, totalResults) => {
-    console.log('Hello1');
-    if (err) return res.status(500).json({ error: 'Error fetching student count' });
+app.get('/mess/stats', async (req, res) => {
+  try {
+    const [totalResults, vegResults, nonVegResults] = await Promise.all([
+      new Promise((resolve, reject) => db.query('SELECT COUNT(*) AS totalStudents FROM users', (err, res) => err ? reject(err) : resolve(res))),
+      new Promise((resolve, reject) => db.query('SELECT COUNT(*) AS veg FROM users WHERE preference = "veg"', (err, res) => err ? reject(err) : resolve(res))),
+      new Promise((resolve, reject) => db.query('SELECT COUNT(*) AS nonveg FROM users WHERE preference = "nonveg"', (err, res) => err ? reject(err) : resolve(res)))
+    ]);
 
-    db.query(queryVeg, (err, vegResults) => {
-      console.log('Hello2');
-      if (err) return res.status(500).json({ error: 'Error fetching veg count' });
-
-      db.query(queryNonVeg, (err, nonVegResults) => {
-        console.log('Hello3');
-        if (err) return res.status(500).json({ error: 'Error fetching non-veg count' });
-
-        res.json({
-          totalStudents: totalResults[0].totalStudents,
-          veg: vegResults[0].veg,
-          nonveg: nonVegResults[0].nonveg
-        });
-      });
+    res.json({
+      totalStudents: totalResults[0]?.totalStudents || 0,
+      veg: vegResults[0]?.veg || 0,
+      nonveg: nonVegResults[0]?.nonveg || 0
     });
-  });
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching mess stats', details: err.message });
+  }
 });
 
 // Search student by roll number
