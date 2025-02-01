@@ -347,12 +347,15 @@ app.get('/mess/stats', (req, res) => {
   const queryNonVeg = 'SELECT COUNT(*) AS nonveg FROM users WHERE preference = "nonveg"';
   console.log('Hello')
   db.query(queryTotal, (err, totalResults) => {
+    console.log('Hello1');
     if (err) return res.status(500).json({ error: 'Error fetching student count' });
 
     db.query(queryVeg, (err, vegResults) => {
+      console.log('Hello2');
       if (err) return res.status(500).json({ error: 'Error fetching veg count' });
 
       db.query(queryNonVeg, (err, nonVegResults) => {
+        console.log('Hello3');
         if (err) return res.status(500).json({ error: 'Error fetching non-veg count' });
 
         res.json({
