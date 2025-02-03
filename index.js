@@ -106,9 +106,14 @@ app.post('/students/get', async (req, res) => {
           return res.status(404).json({ message: 'Student not found' });
         }
         const student = results[0];
+        if (student.allowed != 1){
+          return res.status(404).json({ message: 'Student not allowed' });
+        }
+        else{
         console.log(results);
         const entryStatus = await attendanceCount(student.rollNo);
         res.json({ student, entry: entryStatus });
+        }
       }
     );
   } catch (error) {
