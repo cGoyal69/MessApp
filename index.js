@@ -360,7 +360,7 @@ app.get('/mess/stats', async (req, res) => {
       return res.status(500).json({ error: 'Error fetching attendance times' });
     }
 
-    res.json({dataStat: results[0]});
+    res.json(results);
   })
   } catch (err) {
     res.status(500).json({ error: 'Error fetching mess stats', details: err.message });
