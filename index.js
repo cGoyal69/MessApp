@@ -62,7 +62,7 @@ const decideUser = (email) => {
         if (err) {
           return reject('Error checking user preference');
         }
-        
+
         // Check preference and resolve accordingly
         const preference = result[0]?.preference;
         if (preference === 'mess') {
@@ -194,15 +194,15 @@ app.put('/students/update', (req, res) => {
   });
 });
 // Delete a user by roll number (from body)
-app.delete('/delete-user', (req, res) => {
-  const { rollNumber } = req.body;
+app.put('/update_allowed_status', (req, res) => {
+  const { rollNo, allowed } = req.body;
 
   if (!rollNumber) {
     return res.status(400).json({ error: 'Roll number is required' });
   }
 
-  const query = 'UPDATE users set allowed=0 WHERE roll_number = ?';
-  db.query(query, [rollNumber], (err, result) => {
+  const query = 'UPDATE users set allowed=? WHERE rollNo = ?';
+  db.query(query,  [allowed, rollNo], (err, result) => {
     if (err) {
       return res.status(500).json({ error: 'Error deleting user' });
     }
@@ -278,7 +278,7 @@ app.post("/send-otp", async (req, res) => {
 // Verify OTP
 app.post("/verify-otp", (req, res) => {
   const { email, otp } = req.body;
-
+  console.log(email, otp);
   // Check if email and otp are provided
   if (!email || !otp) {
     return res.status(400).json({ error: "Email and OTP are required" });
@@ -289,8 +289,7 @@ app.post("/verify-otp", (req, res) => {
     delete otpStore[email]; // OTP should be used only once
 
     // Now, call decideUser function to get the user type based on preference
-    decideUser(email)
-      .then(userType => {
+    decideUser(email).then(userType => {
         // Send success response with the user type
         return res.json({
           success: true,
