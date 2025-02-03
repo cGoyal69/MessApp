@@ -107,7 +107,7 @@ app.post('/students/get', async (req, res) => {
         }
         const student = results[0];
         if (student.allowed != 1){
-          return res.status(404).json({ message: 'Student not allowed' });
+          return res.status(405).json({ message: 'Student not allowed' });
         }
         else{
         console.log(results);
