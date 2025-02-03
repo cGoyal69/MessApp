@@ -156,7 +156,7 @@ app.post('/add-user', (req, res) => {
     return res.status(400).json({ error: 'Name, email, rollNo, preference, and photo are required' });
   }
 
-  const query = 'INSERT INTO users (name, email, rollNo, preference, photo) VALUES (?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO users (name, email, rollNo, preference, photo, allowed) VALUES (?, ?, ?, ?, ?, 1)';
   db.query(query, [name, email, rollNo, preference, photo], (err, result) => {
     if (err) {
       return res.status(500).json({ error: 'Error adding user' });
@@ -201,7 +201,7 @@ app.delete('/delete-user', (req, res) => {
     return res.status(400).json({ error: 'Roll number is required' });
   }
 
-  const query = 'DELETE FROM users WHERE roll_number = ?';
+  const query = 'UPDATE users set allowed=0 WHERE roll_number = ?';
   db.query(query, [rollNumber], (err, result) => {
     if (err) {
       return res.status(500).json({ error: 'Error deleting user' });
