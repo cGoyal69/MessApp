@@ -351,17 +351,17 @@ app.post('/students/attendance', (req, res) => {
 // Get total students and count veg/non-veg
 app.get('/mess/stats', async (req, res) => {
   try {
-    const [totalResults, vegResults, nonVegResults] = await Promise.all([
-      new Promise((resolve, reject) => db.query('SELECT COUNT(*) AS totalStudents FROM users', (err, res) => err ? reject(err) : resolve(res))),
-      new Promise((resolve, reject) => db.query('SELECT COUNT(*) AS veg FROM users WHERE preference = "veg"', (err, res) => err ? reject(err) : resolve(res))),
-      new Promise((resolve, reject) => db.query('SELECT COUNT(*) AS nonveg FROM users WHERE preference = "nonveg"', (err, res) => err ? reject(err) : resolve(res)))
-    ]);
+    const query = `
+    SELECT preference, COUNT(*) as count FROM users GROUP BY preference
+  `;
 
-    res.json({
-      totalStudents: totalResults[0]?.totalStudents || 0,
-      veg: vegResults[0]?.veg || 0,
-      nonveg: nonVegResults[0]?.nonveg || 0
-    });
+  db.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error fetching attendance times' });
+    }
+
+    res.json({dataStat: results[0]});
+  })
   } catch (err) {
     res.status(500).json({ error: 'Error fetching mess stats', details: err.message });
   }
