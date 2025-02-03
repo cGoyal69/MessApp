@@ -197,7 +197,7 @@ app.put('/students/update', (req, res) => {
 app.put('/update_allowed_status', (req, res) => {
   const { rollNo, allowed } = req.body;
 
-  if (!rollNumber) {
+  if (!rollNo) {
     return res.status(400).json({ error: 'Roll number is required' });
   }
 
