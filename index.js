@@ -48,7 +48,7 @@ const attendanceCount = (rollNumber) => {
         if (err) {
           return reject('Error checking attendance');
         }
-        resolve(result[0].count > 2 ? 'Visited' : 'Pass');
+        resolve(result[0].count > 0 ? 'Visited' : 'Pass');
       }
     );
   });
