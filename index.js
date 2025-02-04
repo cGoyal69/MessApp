@@ -15,6 +15,7 @@ const EMAIL_PASS = "skby bqhs bizg jgbv";
 
 // Middleware
 app.use(bodyParser.json());
+//hjhu
 app.use(cors());
 
 // MySQL Connection
