@@ -24,7 +24,7 @@ const db = mysql.createConnection({
   user: 'avnadmin',      // Replace with your MySQL username
   password: 'AVNS_AvANMiNmvDBnWSYkCF8', // Replace with your MySQL password
   database: 'mess',  // Replace with your MySQL database name
-  port: 13103,
+  port: 13099,
   waitForConnections: true,
   connectionLimit: 10,  // Adjust asb needed
   queueLimit: 0
