@@ -26,7 +26,7 @@ const db = mysql.createConnection({
   database: 'sql12761177',  // Replace with your MySQL database name
   port: 3306,
   waitForConnections: true,
-  connectionLimit: 10,  // Adjust as needed
+  connectionLimit: 10,  // Adjust asb needed
   queueLimit: 0
 });
 
