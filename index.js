@@ -8,7 +8,7 @@ const app = express();
 const PORT = 3000;
 
 
-let otpStore = {}; // Store OTPs temporarily
+let otpStore = {}; // Store OTPs mtemporarily
 const EMAIL_USER = "c92084860@gmail.com";
 const EMAIL_PASS = "skby bqhs bizg jgbv";
 
