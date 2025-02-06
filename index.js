@@ -20,11 +20,11 @@ app.use(cors());
 
 // MySQL Connection
 const db = mysql.createConnection({
-  host: 'sql12.freesqldatabase.com', // Replace with your MySQL host
-  user: 'sql12761177',      // Replace with your MySQL username
-  password: 'rQKmDh72T8', // Replace with your MySQL password
-  database: 'sql12761177',  // Replace with your MySQL database name
-  port: 3306,
+  host: 'messapp-cgoy96.b.aivencloud.com', // Replace with your MySQL host
+  user: 'avnadmin',      // Replace with your MySQL username
+  password: 'AVNS_AvANMiNmvDBnWSYkCF8', // Replace with your MySQL password
+  database: 'mess',  // Replace with your MySQL database name
+  port: 13103,
   waitForConnections: true,
   connectionLimit: 10,  // Adjust asb needed
   queueLimit: 0
