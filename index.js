@@ -174,7 +174,7 @@ app.post('/getRemain', async (req, res) => {
   const istTime = new Date(new Date().getTime() + (3 * 60 * 60 * 1000))
   try {
     db.query(
-      'SELECT count(*) FROM users, attendance WHERE date <= ? and users.rollNo = attendance.rollNo and users.preference = ?',
+      'SELECT count(*) as scannedCount FROM users, attendance WHERE date <= ? and users.rollNo = attendance.rollNo and users.preference = ?',
       [istTime, preference],
       async (err, results) => {
         if (err) {
@@ -184,8 +184,8 @@ app.post('/getRemain', async (req, res) => {
           console.log(err);
           return res.status(404).json({ message: 'Student not found' });
         }
-        const student = results[0];
-        res.json({ scannedCount: student });
+        const scannedCount = results[0];
+        res.json({ scannedCount});
       }
     );
   } catch (error) {
