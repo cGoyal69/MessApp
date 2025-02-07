@@ -171,7 +171,7 @@ app.post('/students/gets', async (req, res) => {
 
 app.post('/getRemain', async (req, res) => {
   const { preference } = req.body;
-  const istTime = new Date(new Date().getTime() + (3 * 60 * 60 * 1000))
+  const istTime = new Date(new Date().getTime() + (2.5 * 60 * 60 * 1000))
   try {
     db.query(
       'SELECT count(*) as scannedCount FROM users, attendance WHERE date >= ? and users.rollNo = attendance.rollNo and users.preference = ?',
