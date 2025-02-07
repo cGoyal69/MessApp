@@ -314,7 +314,7 @@ app.put('/students/:rollNumber', (req, res) => {
   const rollNumber = req.params.rollNumber;
 
   db.query(
-    'INSERT INTO attendance (rollNo, date) VALUES (?, NOW())',
+    'INSERT INTO attendance (rollNo, date) VALUES (?, CONVERT_TZ(NOW(), "UTC", "Asia/Kolkata"))',
     [rollNumber],
     (err, results) => {
       if (err) {
