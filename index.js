@@ -46,7 +46,7 @@ const attendanceCount = (rollNumber) => {
       `SELECT COUNT(*) AS count 
        FROM attendance 
        WHERE rollNo = ? 
-       AND date <= ? `,
+       AND date >= ? `,
       [rollNumber,istTime],
       (err, result) => {
         if (err) {
