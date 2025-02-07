@@ -316,7 +316,7 @@ app.post("/verify-otp", (req, res) => {
 // Update student attendance
 app.put('/students/:rollNumber', (req, res) => {
   const rollNumber = req.params.rollNumber;
-  const istTime = new Date(new Date().getTime()) // Convert to IST
+  const istTime = new Date(new Date().getTime() + (5.5*60*60*1000)) // Convert to IST
 
   db.query(
     'INSERT INTO attendance (rollNo, date) VALUES (?, ?)',
