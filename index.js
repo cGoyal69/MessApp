@@ -169,7 +169,29 @@ app.post('/students/gets', async (req, res) => {
   }
 });
 
-
+app.post('/getRemain', async (req, res) => {
+  const { preference } = req.body;
+  const istTime = new Date(new Date().getTime() + (3 * 60 * 60 * 1000))
+  try {
+    db.query(
+      'SELECT count(*) FROM users, attendance WHERE date <= ? and users.rollNo = attendance.rollNo and users.preference = ?',
+      [istTime, preference],
+      async (err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({ error: 'Error fetching student data' });
+        } else if (results.length === 0) {
+          console.log(err);
+          return res.status(404).json({ message: 'Student not found' });
+        }
+        const student = results[0];
+        res.json({ scannedCount: student });
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ error: 'Error processing request' });
+  }
+});
 // Add a new user
 app.post('/add-user', (req, res) => {
   const { name, email, rollNo, preference, photo } = req.body;
