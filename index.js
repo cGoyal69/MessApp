@@ -42,7 +42,10 @@ db.connect((err) => {
 const attendanceCount = (rollNumber) => {
   return new Promise((resolve, reject) => {
     db.query(
-      'SELECT COUNT(*) AS count FROM attendance WHERE rollNo = ? AND DATE(date) = CURDATE()',
+      `SELECT COUNT(*) AS count 
+       FROM attendance 
+       WHERE rollNo = ? 
+       AND date >= NOW() - INTERVAL 2 HOUR 30 MINUTE`,
       [rollNumber],
       (err, result) => {
         if (err) {
@@ -312,10 +315,11 @@ app.post("/verify-otp", (req, res) => {
 // Update student attendance
 app.put('/students/:rollNumber', (req, res) => {
   const rollNumber = req.params.rollNumber;
+  const istTime = new Date(new Date().getTime()) // Convert to IST
 
   db.query(
-    'INSERT INTO attendance (rollNo, date) VALUES (?, CONVERT_TZ(NOW(), "UTC", "Asia/Kolkata"))',
-    [rollNumber],
+    'INSERT INTO attendance (rollNo, date) VALUES (?, ?)',
+    [rollNumber, istTime],
     (err, results) => {
       if (err) {
         res.status(500).json({ error: 'Error updating attendance' });
