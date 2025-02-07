@@ -15,7 +15,6 @@ const EMAIL_PASS = "skby bqhs bizg jgbv";
 
 // Middleware
 app.use(bodyParser.json());
-//hjhug
 app.use(cors());
 
 // MySQL Connection
@@ -98,27 +97,32 @@ app.get('/students', (req, res) => {
 // Fetch student data by roll number and preference
 app.post('/students/get', async (req, res) => {
   const { rollNumber, preference } = req.body;
-  console.log(rollNumber);
+  console.log("Student with rollNo:"+rollNumber+" found in "+preference+" mess.");
   try {
-    db.query(
-      'SELECT * FROM users WHERE rollNo = ? AND preference = ?',
+    db.query('SELECT * FROM users WHERE rollNo = ?',
       [rollNumber, preference],
       async (err, results) => {
         if (err) {
           console.log(err);
           return res.status(500).json({ error: 'Error fetching student data' });
         } else if (results.length === 0) {
-          console.log(err);
           return res.status(404).json({ message: 'Student not found' });
         }
-        const student = results[0];
-        if (student.allowed != 1){
-          return res.status(405).json({ message: 'Student not allowed' });
-        }
         else{
-        console.log(results);
-        const entryStatus = await attendanceCount(student.rollNo);
-        res.json({ student, entry: entryStatus });
+          const student = results[0];
+          if (student.allowed != 1){
+            console.log(student.name+' is debarded.');
+            return res.status(405).json({ message: 'Student not allowed' });
+          }
+          else if(student.preference != preference){
+            console.log(student.name+' Entering Wrong Mess.');
+            return res.status(405).json({ message: `Denied Student of ${student.preference} mess!` });
+          }
+          else{
+            console.log(student, " verified entry.");
+            const entryStatus = await attendanceCount(student.rollNo);
+            return res.json({ student, entry: entryStatus });
+          }
         }
       }
     );
@@ -129,7 +133,7 @@ app.post('/students/get', async (req, res) => {
 
 app.post('/students/gets', async (req, res) => {
   const { rollNo } = req.body;
-  console.log(rollNo);
+  console.log(rollNo+" searched by admin.");
   try {
     db.query(
       'SELECT * FROM users WHERE rollNo = ?',
@@ -143,7 +147,7 @@ app.post('/students/gets', async (req, res) => {
           return res.status(404).json({ message: 'Student not found' });
         }
         const student = results[0];
-        console.log(results);
+        console.log(student+" to admin page.");
         const entryStatus = await attendanceCount(student.rollNo);
         res.json({ student, entry: entryStatus });
       }
@@ -161,12 +165,13 @@ app.post('/add-user', (req, res) => {
   if (!name || !email || !rollNo || !preference || !photo) {
     return res.status(400).json({ error: 'Name, email, rollNo, preference, and photo are required' });
   }
-
   const query = 'INSERT INTO users (name, email, rollNo, preference, photo, allowed) VALUES (?, ?, ?, ?, ?, 1)';
   db.query(query, [name, email, rollNo, preference, photo], (err, result) => {
     if (err) {
+      console.log(`${name}, ${rollNo} not added.`);
       return res.status(500).json({ error: 'Error adding user' });
     }
+    console.log(`${name}, ${rollNo} added.`);
     res.status(201).json({ success: 'User added successfully', userId: result.insertId });
   });
 });
@@ -174,13 +179,11 @@ app.post('/add-user', (req, res) => {
 // Update student details by roll number
 app.put('/students/update', (req, res) => {
   const { rollNo, name, email, preference } = req.body;
-
+  console.log('Data of'+rollNo+name+" to update.");
   if (!rollNo) {
     return res.status(400).json({ error: 'Roll No is required' });
   }
-
   const query = 'UPDATE users SET name = ?, email = ?, preference = ? WHERE rollNo = ?';
-
   db.query(query, [name, email, preference, rollNo], (err, result) => {
     if (err) {
       return res.status(500).json({ error: 'Error updating student' });
