@@ -42,6 +42,7 @@ db.connect((err) => {
 const attendanceCount = (rollNumber) => {
   return new Promise((resolve, reject) => {
     const istTime = new Date(new Date().getTime() - (2.5 * 60 * 60 * 1000))
+    console.log(istTime)
     db.query(
       `SELECT COUNT(*) AS count 
        FROM attendance 
