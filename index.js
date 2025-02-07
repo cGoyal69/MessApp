@@ -41,12 +41,13 @@ db.connect((err) => {
 // Helper Function to Check Attendance
 const attendanceCount = (rollNumber) => {
   return new Promise((resolve, reject) => {
+    const istTime = new Date(new Date().getTime() - (2.5 * 60 * 60 * 1000))
     db.query(
       `SELECT COUNT(*) AS count 
        FROM attendance 
        WHERE rollNo = ? 
-       AND date >= NOW() - INTERVAL 2 HOUR 30 MINUTE`,
-      [rollNumber],
+       AND date <= ? `,
+      [rollNumber,istTime],
       (err, result) => {
         if (err) {
           return reject('Error checking attendance');
