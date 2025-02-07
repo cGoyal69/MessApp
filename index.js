@@ -174,7 +174,7 @@ app.post('/getRemain', async (req, res) => {
   const istTime = new Date(new Date().getTime() + (3 * 60 * 60 * 1000))
   try {
     db.query(
-      'SELECT count(*) as scannedCount FROM users, attendance WHERE date <= ? and users.rollNo = attendance.rollNo and users.preference = ?',
+      'SELECT count(*) as scannedCount FROM users, attendance WHERE date >= ? and users.rollNo = attendance.rollNo and users.preference = ?',
       [istTime, preference],
       async (err, results) => {
         if (err) {
