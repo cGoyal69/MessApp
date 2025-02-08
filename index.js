@@ -97,11 +97,15 @@ app.get('/students', (req, res) => {
 // Fetch student data by roll number and preference
 app.post('/students/get', async (req, res) => {
   const { rollNumber, preference } = req.body;
+  let prefer = 'nonveg'
+  if (preference == 'Veg'){
+    prefer = 'veg';
+  }
   const istTime = new Date(new Date().getTime() + (5.5*60*60*1000)); // Convert to IST
   console.log("Student with rollNo:"+rollNumber+" found in "+preference+" mess.");
   try {
     db.query('SELECT * FROM users WHERE rollNo = ?',
-      [rollNumber, preference],
+      [rollNumber],
       async (err, results) => {
         if (err) {
           console.log(err);
@@ -115,7 +119,7 @@ app.post('/students/get', async (req, res) => {
             console.log(student.name+' is debarded.');
             return res.status(405).json({ message: 'Student not allowed' });
           }
-          else if(student.preference != preference){
+          else if(student.preference != prefer){
             console.log(student.name+' Entering Wrong Mess.');
             db.query(
               'INSERT INTO fine (rollNo, date) VALUES (?, ?)',
