@@ -111,6 +111,17 @@ app.post('/students/get', async (req, res) => {
           console.log(err);
           return res.status(500).json({ error: 'Error fetching student data' });
         } else if (results.length === 0) {
+          db.query(
+            'INSERT INTO DefaulterForm (rollNo, date) VALUES (?, ?)',
+            [rollNumber, istTime],
+            (err, results) => {
+              if (err) {
+                console.log('Error updating attendance' );
+              } else {
+                console.log('Fine updated successfully' );
+              }
+            }
+          );
           return res.status(404).json({ message: 'Student not found' });
         }
         else{
