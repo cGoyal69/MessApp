@@ -19,14 +19,19 @@ app.use(cors());
 
 // MySQL Connection
 const db = mysql.createConnection({
-  host: 'messapp-cgoy96.b.aivencloud.com', // Replace with your MySQL host
-  user: 'avnadmin',      // Replace with your MySQL username
-  password: 'AVNS_AvANMiNmvDBnWSYkCF8', // Replace with your MySQL password
-  database: 'mess',  // Replace with your MySQL database name
-  port: 13099,
+  host: 'srv1128.hstgr.io', // Replace with your MySQL host
+  user: 'u271400095_mess_app',      // Replace with your MySQL username
+  password: 'helloKitty6969', // Replace with your MySQL password
+  database: 'u271400095_mess',  // Replace with your MySQL database name
+  port: 3306,
   waitForConnections: true,
   connectionLimit: 10,  // Adjust asb needed
   queueLimit: 0
+    // host = 'srv1128.hstgr.io'
+    // db = 'u271400095_mess'
+    // user = 'u271400095_mess_app'
+    // password = 'helloKitty6969'
+    // port = 3306
 });
 
 db.connect((err) => {
