@@ -8,6 +8,13 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Debug: Log environment variables
+console.log('=== Environment Variables ===');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_PORT:', process.env.DB_PORT);
+console.log('DB_NAME:', process.env.DB_NAME);
+console.log('============================');
 
 let otpStore = {}; // Store OTPs mtemporarily
 const EMAIL_USER = process.env.EMAIL_USER;
@@ -19,46 +26,50 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // MySQL Connection Pool (more reliable for serverless)
-const mysql_pool = require('mysql2/promise');
 let pool;
 
-async function getPoolConnection() {
+function getPool() {
   if (!pool) {
-    pool = mysql_pool.createPool({
+    pool = mysql.createPool({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      port: process.env.DB_PORT,
+      port: parseInt(process.env.DB_PORT) || 20041,
       waitForConnections: true,
       connectionLimit: 5,
-      queueLimit: 0,
-      enableKeepAlive: true,
-      keepAliveInitialDelayMs: 0,
-      enableTimestamps: true
+      queueLimit: 0
+    });
+
+    pool.on('error', (err) => {
+      console.error('Pool error:', err);
+      pool = null;
     });
   }
   return pool;
 }
 
-// For backward compatibility, create a wrapper that mimics the mysql2 callback style
+// For backward compatibility, create a wrapper
 const db = {
   query: (sql, values, callback) => {
-    getPoolConnection().then(pool => {
-      pool.query(sql, values, callback);
-    }).catch(err => {
-      console.error('Pool error:', err);
-      if (callback) callback(err);
-    });
+    const poolConnection = getPool();
+    // Handle both (sql, callback) and (sql, values, callback) signatures
+    if (typeof values === 'function') {
+      callback = values;
+      poolConnection.query(sql, callback);
+    } else {
+      poolConnection.query(sql, values, callback);
+    }
   },
   connect: (callback) => {
-    getPoolConnection().then(() => {
-      console.log('Connected to MySQL');
+    try {
+      getPool();
+      console.log('Connected to MySQL Pool');
       if (callback) callback(null);
-    }).catch(err => {
-      console.error('Error connecting to MySQL:', err);
+    } catch (err) {
+      console.error('Error creating MySQL Pool:', err);
       if (callback) callback(err);
-    });
+    }
   }
 };
 
