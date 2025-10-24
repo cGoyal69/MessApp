@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -5,12 +6,12 @@ const nodemailer = require("nodemailer");
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 
 let otpStore = {}; // Store OTPs mtemporarily
-const EMAIL_USER = "c92084860@gmail.com";
-const EMAIL_PASS = "skby bqhs bizg jgbv";
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
 
 
 // Middleware
@@ -19,19 +20,14 @@ app.use(cors());
 
 // MySQL Connection
 const db = mysql.createConnection({
-  host: 'srv1128.hstgr.io', // Replace with your MySQL host
-  user: 'u271400095_mess_app',      // Replace with your MySQL username
-  password: 'helloKitty6969', // Replace with your MySQL password
-  database: 'u271400095_mess',  // Replace with your MySQL database name
-  port: 3306,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
   waitForConnections: true,
   connectionLimit: 10,  // Adjust asb needed
   queueLimit: 0
-    // host = 'srv1128.hstgr.io'
-    // db = 'u271400095_mess'
-    // user = 'u271400095_mess_app'
-    // password = 'helloKitty6969'
-    // port = 3306
 });
 
 db.connect((err) => {
