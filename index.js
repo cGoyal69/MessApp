@@ -18,17 +18,49 @@ const EMAIL_PASS = process.env.EMAIL_PASS;
 app.use(bodyParser.json());
 app.use(cors());
 
-// MySQL Connection
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-  waitForConnections: true,
-  connectionLimit: 10,  // Adjust asb needed
-  queueLimit: 0
-});
+// MySQL Connection Pool (more reliable for serverless)
+const mysql_pool = require('mysql2/promise');
+let pool;
+
+async function getPoolConnection() {
+  if (!pool) {
+    pool = mysql_pool.createPool({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      port: process.env.DB_PORT,
+      waitForConnections: true,
+      connectionLimit: 5,
+      queueLimit: 0,
+      enableKeepAlive: true,
+      keepAliveInitialDelayMs: 0,
+      enableTimestamps: true
+    });
+  }
+  return pool;
+}
+
+// For backward compatibility, create a wrapper that mimics the mysql2 callback style
+const db = {
+  query: (sql, values, callback) => {
+    getPoolConnection().then(pool => {
+      pool.query(sql, values, callback);
+    }).catch(err => {
+      console.error('Pool error:', err);
+      if (callback) callback(err);
+    });
+  },
+  connect: (callback) => {
+    getPoolConnection().then(() => {
+      console.log('Connected to MySQL');
+      if (callback) callback(null);
+    }).catch(err => {
+      console.error('Error connecting to MySQL:', err);
+      if (callback) callback(err);
+    });
+  }
+};
 
 db.connect((err) => {
   if (err) {
@@ -447,10 +479,16 @@ app.delete('/students/remove', (req, res) => {
     res.status(200).json({ success: 'Student removed successfully' });
   });
 });
-// Start the server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://0.0.0.0:${PORT}`);
-  console.log('Access this app on your local network using your system\'s local IP address:');
-  console.log(`Example: http://192.168.29.110:${PORT}`);
-});
+
+// Start the server for local development
+if (process.env.VERCEL !== 'true') {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on http://0.0.0.0:${PORT}`);
+    console.log('Access this app on your local network using your system\'s local IP address:');
+    console.log(`Example: http://192.168.29.110:${PORT}`);
+  });
+}
+
+// Export for Vercel serverless
+module.exports = app;
 
